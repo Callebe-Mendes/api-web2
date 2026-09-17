@@ -1,0 +1,7 @@
+PLANEJAMENTO_ENTREGA_1.md
+
+**/node_modules/
+**/dist/
+**/.env
+*.log
+.DS_Store
