@@ -2,6 +2,8 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import { Situation } from "./entities/Situation";
+import { ProductSituation } from "./entities/ProductSituation";
+import { ProductCategory } from "./entities/ProductCategory";
 
 dotenv.config();
 
@@ -16,7 +18,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE,
   synchronize: false,
   logging: true,
-  entities: [Situation],
+  entities: [Situation, ProductSituation, ProductCategory],
   subscribers: [],
   migrations: [__dirname + "/migrations/*.js"],
 });

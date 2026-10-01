@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { initializeDatabase } from "./data-source";
 import situationRoutes from "./routes/situation.routes";
+import productSituationRoutes from "./routes/productSituation.routes";
+import productCategoryRoutes from "./routes/productCategory.routes";
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ async function bootstrap(): Promise<void> {
   });
 
   app.use("/", situationRoutes);
+  app.use("/", productSituationRoutes);
+  app.use("/", productCategoryRoutes);
 
   app.listen(port, () => {
     console.log(`Servidor iniciado na porta ${port}: http://localhost:${port}`);
