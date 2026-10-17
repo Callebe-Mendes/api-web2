@@ -4,21 +4,23 @@ import dotenv from "dotenv";
 import { Situation } from "./entities/Situation";
 import { ProductSituation } from "./entities/ProductSituation";
 import { ProductCategory } from "./entities/ProductCategory";
+import { User } from "./entities/User";
+import { Product } from "./entities/Product";
 
 dotenv.config();
 
 const dialect = process.env.DB_DIALECT;
 
 export const AppDataSource = new DataSource({
-  type: dialect as "mysql" | "mariadb" | "postgres",
+  type: (dialect || "postgres") as "postgres",
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   synchronize: false,
   logging: true,
-  entities: [Situation, ProductSituation, ProductCategory],
+  entities: [Situation, ProductSituation, ProductCategory, User, Product],
   subscribers: [],
   migrations: [__dirname + "/migrations/*.js"],
 });

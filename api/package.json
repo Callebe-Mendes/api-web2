@@ -13,13 +13,16 @@
     "start:watch": "concurrently \"npm run watch\" \"node --watch dist/index.js\"",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:run": "npm run build && npx typeorm migration:run -d dist/data-source.js",
-    "migration:revert": "npm run build && npx typeorm migration:revert -d dist/data-source.js"
+    "migration:revert": "npm run build && npx typeorm migration:revert -d dist/data-source.js",
+    "seed": "npm run build && node dist/seeds/run-seeds.js",
+    "smoke": "node scripts/smoke.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "mysql2": "^3.14.1",
+    "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.24",
     "yup": "^1.6.1"

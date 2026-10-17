@@ -5,6 +5,8 @@ import { initializeDatabase } from "./data-source";
 import situationRoutes from "./routes/situation.routes";
 import productSituationRoutes from "./routes/productSituation.routes";
 import productCategoryRoutes from "./routes/productCategory.routes";
+import userRoutes from "./routes/user.routes";
+import productRoutes from "./routes/product.routes";
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ async function bootstrap(): Promise<void> {
   app.use("/", situationRoutes);
   app.use("/", productSituationRoutes);
   app.use("/", productCategoryRoutes);
+  app.use("/", userRoutes);
+  app.use("/", productRoutes);
 
   app.listen(port, () => {
     console.log(`Servidor iniciado na porta ${port}: http://localhost:${port}`);

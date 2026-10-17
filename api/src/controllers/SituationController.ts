@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Not } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Situation } from "../entities/Situation";
-import { PaginationService } from "../shared/PaginationService";
+import { requireId, sendPaginatedList } from "../shared/http";
 import { handleValidationError } from "../shared/validation";
 import {
   createSituationSchema,
@@ -12,41 +12,12 @@ import {
 export class SituationController {
   static async list(req: Request, res: Response): Promise<void> {
     try {
-      const situationRepository = AppDataSource.getRepository(Situation);
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-
-      const total = await situationRepository.count();
-      if (total === 0) {
-        res.status(200).json({
-          mensagem: "Nenhuma situação encontrada",
-          situations: [],
-        });
-        return;
-      }
-
-      try {
-        const result = await PaginationService.paginate(
-          situationRepository,
-          page,
-          limit,
-          { id: "DESC" }
-        );
-
-        res.status(200).json({
-          currentPage: result.currentPage,
-          lastPage: result.lastPage,
-          total: result.total,
-          situations: result.data,
-        });
-      } catch (paginationError) {
-        res.status(400).json({
-          mensagem:
-            paginationError instanceof Error
-              ? paginationError.message
-              : "Página inválida",
-        });
-      }
+      await sendPaginatedList(
+        req,
+        res,
+        AppDataSource.getRepository(Situation),
+        "situations"
+      );
     } catch {
       res.status(500).json({
         mensagem: "Erro ao listar situação!",
@@ -56,7 +27,8 @@ export class SituationController {
 
   static async show(req: Request, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = requireId(req, res);
+      if (id === null) return;
       const situationRepository = AppDataSource.getRepository(Situation);
       const situation = await situationRepository.findOneBy({ id });
 
@@ -114,9 +86,18 @@ export class SituationController {
     try {
       await updateSituationSchema.validate(req.body, { abortEarly: false });
 
-      const situationId = Number(req.params.id);
+      const situationId = requireId(req, res);
+      if (situationId === null) return;
       const { nameSituation } = req.body;
       const situationRepository = AppDataSource.getRepository(Situation);
+
+      const situation = await situationRepository.findOneBy({ id: situationId });
+      if (!situation) {
+        res.status(404).json({
+          mensagem: "Situação não encontrada!",
+        });
+        return;
+      }
 
       if (nameSituation) {
         const existingSituation = await situationRepository.findOne({
@@ -132,14 +113,6 @@ export class SituationController {
           });
           return;
         }
-      }
-
-      const situation = await situationRepository.findOneBy({ id: situationId });
-      if (!situation) {
-        res.status(404).json({
-          mensagem: "Situação não encontrada!",
-        });
-        return;
       }
 
       situationRepository.merge(situation, { nameSituation });
@@ -162,7 +135,8 @@ export class SituationController {
 
   static async remove(req: Request, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = requireId(req, res);
+      if (id === null) return;
       const situationRepository = AppDataSource.getRepository(Situation);
       const situation = await situationRepository.findOneBy({ id });
 

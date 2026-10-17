@@ -26,7 +26,6 @@ export class CreateProductSituationsTable1773769300000 implements MigrationInter
             name: "updatedAt",
             type: "timestamp",
             default: "CURRENT_TIMESTAMP",
-            onUpdate: "CURRENT_TIMESTAMP",
           },
         ],
       })

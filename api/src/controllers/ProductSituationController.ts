@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { ProductSituation } from "../entities/ProductSituation";
-import { PaginationService } from "../shared/PaginationService";
+import { requireId, sendPaginatedList } from "../shared/http";
 import { handleValidationError } from "../shared/validation";
 import {
   createProductSituationSchema,
@@ -11,41 +11,12 @@ import {
 export class ProductSituationController {
   static async list(req: Request, res: Response): Promise<void> {
     try {
-      const repository = AppDataSource.getRepository(ProductSituation);
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-
-      const total = await repository.count();
-      if (total === 0) {
-        res.status(200).json({
-          mensagem: "Nenhum registro encontrado",
-          productSituations: [],
-        });
-        return;
-      }
-
-      try {
-        const result = await PaginationService.paginate(
-          repository,
-          page,
-          limit,
-          { id: "DESC" }
-        );
-
-        res.status(200).json({
-          currentPage: result.currentPage,
-          lastPage: result.lastPage,
-          total: result.total,
-          productSituations: result.data,
-        });
-      } catch (paginationError) {
-        res.status(400).json({
-          mensagem:
-            paginationError instanceof Error
-              ? paginationError.message
-              : "Página inválida",
-        });
-      }
+      await sendPaginatedList(
+        req,
+        res,
+        AppDataSource.getRepository(ProductSituation),
+        "productSituations"
+      );
     } catch {
       res.status(500).json({
         mensagem: "Erro ao listar situação de produto!",
@@ -55,7 +26,8 @@ export class ProductSituationController {
 
   static async show(req: Request, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = requireId(req, res);
+      if (id === null) return;
       const repository = AppDataSource.getRepository(ProductSituation);
       const productSituation = await repository.findOneBy({ id });
 
@@ -103,7 +75,8 @@ export class ProductSituationController {
     try {
       await updateProductSituationSchema.validate(req.body, { abortEarly: false });
 
-      const id = Number(req.params.id);
+      const id = requireId(req, res);
+      if (id === null) return;
       const { name } = req.body;
       const repository = AppDataSource.getRepository(ProductSituation);
 
@@ -135,7 +108,8 @@ export class ProductSituationController {
 
   static async remove(req: Request, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = requireId(req, res);
+      if (id === null) return;
       const repository = AppDataSource.getRepository(ProductSituation);
       const productSituation = await repository.findOneBy({ id });
 
